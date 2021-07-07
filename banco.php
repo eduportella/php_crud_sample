@@ -2,10 +2,10 @@
 
 class Banco
 {
-    private static $dbNome = '';
-    private static $dbHost = '';
-    private static $dbUsuario = '';
-    private static $dbSenha = '';
+    private static $dbNome = 'test';
+    private static $dbHost = 'localhost';
+    private static $dbUsuario = 'root';
+    private static $dbSenha = 'usbw';
     
     private static $cont = null;
     
@@ -16,11 +16,14 @@ class Banco
     
     public static function conectar()
     {
+    
         if(null == self::$cont)
         {
             try
             {
                 self::$cont =  new PDO( "mysql:host=".self::$dbHost.";"."dbname=".self::$dbNome, self::$dbUsuario, self::$dbSenha); 
+                
+                
             }
             catch(PDOException $exception)
             {

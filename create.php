@@ -57,6 +57,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sexoErro = 'Por favor seleccione um campo!';
             $validacao = False;
         }
+
+        if(!empty($_POST['avatar'])){
+            
+            // Alterar os dados abaixo para o envio para o amazon S3
+            define('AWS_S3_KEY', 'XXXX');
+            define('AWS_S3_SECRET', 'XXXX');
+            define('AWS_S3_REGION', 'us-east-2');
+            define('AWS_S3_BUCKET', 'bucket');
+            define('AWS_S3_URL', 'http://s3.'.AWS_S3_REGION.'.amazonaws.com/'.AWS_S3_BUCKET.'/');
+
+            $tmpfile = $_FILES['file']['tmp_name'];
+            $file = $_FILES['file']['name'];
+            if (defined('AWS_S3_URL')) {
+            // Persist to AWS S3 and delete uploaded file
+            require_once('S3.php');
+            S3::setAuth(AWS_S3_KEY, AWS_S3_SECRET);
+            S3::setRegion(AWS_S3_REGION);
+            S3::setSignatureVersion('v4');
+            S3::putObject(S3::inputFile($tmpfile), AWS_S3_BUCKET, 'path/in/bucket/'.$file, S3::ACL_PUBLIC_READ);
+            unlink($tmpfile);
+            } else {
+            // Persist to disk
+            $path = 'path/to/user/files/'.$file;
+            move_uploaded_file($tmpfile, $path);
+            }
+       }
     }
 
 //Inserindo no Banco:
@@ -155,6 +181,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <?php if (!empty($sexoErro)): ?>
                                 <span class="help-inline text-danger"><?php echo $sexoErro; ?></span>
                             <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="control-group <?php !empty($avatarErro) ? '$avatarErro ' : ''; ?>">
+                        <label class="control-label">Avatar</label>
+                        <div class="controls">
+                        <input type="file" name="avatar" id="avatar">
                         </div>
                     </div>
                     <div class="form-actions">
